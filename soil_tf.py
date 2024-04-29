@@ -8,10 +8,10 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
-batch_size = 32
+batch_size = 64
 img_height = 180
 img_width = 180
-data_dir = "./Soil_types"
+data_dir = "./Soil_types2"
 
 # train_ds = tf.keras.utils.image_dataset_from_directory(
 #     data_dir,
@@ -71,8 +71,12 @@ data_dir = "./Soil_types"
 #   layers.MaxPooling2D(),
 #   layers.Conv2D(64, 3, padding='same', activation='relu'),
 #   layers.MaxPooling2D(),
+#   layers.Conv2D(128, 3, padding='same', activation='relu'),
+#   layers.MaxPooling2D(),
 #   layers.Dropout(0.2),
 #   layers.Flatten(),
+#   layers.Dense(256, activation='relu'),
+#   layers.Dropout(0.2),
 #   layers.Dense(128, activation='relu'),
 #   layers.Dense(num_classes)
 # ])
@@ -84,7 +88,7 @@ data_dir = "./Soil_types"
 # model.summary()
 #
 #
-# epochs=30
+# epochs=100
 # history = model.fit(
 #   train_ds,
 #   validation_data=val_ds,
@@ -112,27 +116,26 @@ data_dir = "./Soil_types"
 # plt.legend(loc='upper right')
 # plt.title('Training and Validation Loss')
 # plt.show()
+model = tf.keras.models.load_model('saved_model/soil_recognition.keras', compile=False)
 
-model = tf.keras.models.load_model('saved_model/soil_recognition')
-
-print(model.summary())
-
-random_soil_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7LO84eN2OtroxV3CymZzVM9c3gWAoW-1K7Q&usqp=CAU"
-random_soil_path = tf.keras.utils.get_file('Soil1', origin=random_soil_url)
+# print(model.summary())
 #
-img = tf.keras.utils.load_img(
-    random_soil_path, target_size=(img_height, img_width)
-)
-img_array = tf.keras.utils.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0)  # Create a batch
-
-print(img_array)
-
-
-predictions = model.predict(img_array)
-score = tf.nn.softmax(predictions[0])
-
-print(score)
+# random_soil_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7LO84eN2OtroxV3CymZzVM9c3gWAoW-1K7Q&usqp=CAU"
+# random_soil_path = tf.keras.utils.get_file('Soil1', origin=random_soil_url)
+# #
+# img = tf.keras.utils.load_img(
+#     random_soil_path, target_size=(img_height, img_width)
+# )
+# img_array = tf.keras.utils.img_to_array(img)
+# img_array = tf.expand_dims(img_array, 0)  # Create a batch
+#
+# print(img_array)
+#
+#
+# predictions = model.predict(img_array)
+# score = tf.nn.softmax(predictions[0])
+#
+# print(score)
 # print(
 #     "This image most likely belongs to {} with a {:.2f} percent confidence."
 #     .format(class_names[np.argmax(score)], 100 * np.max(score))
@@ -141,12 +144,13 @@ print(score)
 # plt.imshow(img_array.numpy()[0].astype("uint8"))
 # plt.axis("off")
 # plt.show()
-
+#
+#
 # model.save('saved_model/soil_recognition')
 
-# converter = tf.lite.TFLiteConverter.from_saved_model('saved_model/soil_recognition')
-# tflite_model = converter.convert()
-#
-# # Save the model.
-# with open('saved_model/soil_recognition_lite', 'wb') as f:
-#     f.write(tflite_model)
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+# Save the model.
+with open('saved_model/soil_recognition_lite', 'wb') as f:
+    f.write(tflite_model)
