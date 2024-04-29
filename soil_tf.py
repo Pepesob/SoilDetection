@@ -13,25 +13,25 @@ img_height = 180
 img_width = 180
 data_dir = "./Soil_types"
 
-train_ds = tf.keras.utils.image_dataset_from_directory(
-    data_dir,
-    validation_split=0.2,
-    subset="training",
-    seed=123,
-    image_size=(img_height, img_width),
-    batch_size=batch_size)
-
-val_ds = tf.keras.utils.image_dataset_from_directory(
-    data_dir,
-    validation_split=0.2,
-    subset="validation",
-    seed=123,
-    image_size=(img_height, img_width),
-    batch_size=batch_size)
-
-class_names = train_ds.class_names
-print(class_names)
-
+# train_ds = tf.keras.utils.image_dataset_from_directory(
+#     data_dir,
+#     validation_split=0.2,
+#     subset="training",
+#     seed=123,
+#     image_size=(img_height, img_width),
+#     batch_size=batch_size)
+#
+# val_ds = tf.keras.utils.image_dataset_from_directory(
+#     data_dir,
+#     validation_split=0.2,
+#     subset="validation",
+#     seed=123,
+#     image_size=(img_height, img_width),
+#     batch_size=batch_size)
+#
+# class_names = train_ds.class_names
+# print(class_names)
+#
 # plt.figure(figsize=(10, 10))
 # for images, labels in train_ds.take(1):
 #     for i in range(9):
@@ -113,8 +113,10 @@ print(class_names)
 # plt.title('Training and Validation Loss')
 # plt.show()
 
-# model = tf.keras.models.load_model('saved_model/soil_recognition')
-#
+model = tf.keras.models.load_model('saved_model/soil_recognition')
+
+print(model.summary())
+
 random_soil_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7LO84eN2OtroxV3CymZzVM9c3gWAoW-1K7Q&usqp=CAU"
 random_soil_path = tf.keras.utils.get_file('Soil1', origin=random_soil_url)
 #
@@ -126,11 +128,11 @@ img_array = tf.expand_dims(img_array, 0)  # Create a batch
 
 print(img_array)
 
-#
-# predictions = model.predict(img_array)
-# score = tf.nn.softmax(predictions[0])
-#
-# print(score)
+
+predictions = model.predict(img_array)
+score = tf.nn.softmax(predictions[0])
+
+print(score)
 # print(
 #     "This image most likely belongs to {} with a {:.2f} percent confidence."
 #     .format(class_names[np.argmax(score)], 100 * np.max(score))
@@ -142,9 +144,9 @@ print(img_array)
 
 # model.save('saved_model/soil_recognition')
 
-converter = tf.lite.TFLiteConverter.from_saved_model('saved_model/soil_recognition')
-tflite_model = converter.convert()
-
-# Save the model.
-with open('saved_model/soil_recognition_lite', 'wb') as f:
-    f.write(tflite_model)
+# converter = tf.lite.TFLiteConverter.from_saved_model('saved_model/soil_recognition')
+# tflite_model = converter.convert()
+#
+# # Save the model.
+# with open('saved_model/soil_recognition_lite', 'wb') as f:
+#     f.write(tflite_model)
